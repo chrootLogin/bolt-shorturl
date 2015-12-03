@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Extension\Animal\Shorturl\Field;
+namespace Bolt\Extension\rootLogin\Shorturl\Field;
 
 use Bolt\Field\FieldInterface;
 
@@ -13,7 +13,7 @@ class ShorturlField implements FieldInterface
 
     public function getTemplate()
     {
-        return 'field/_shorturl.twig';
+        return '_shorturl.twig';
     }
 
     public function getStorageType()

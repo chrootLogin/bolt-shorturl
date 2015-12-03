@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Extension\Animal\Shorturl\Controller;
+namespace Bolt\Extension\rootLogin\Shorturl\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Silex\Application;
@@ -20,13 +20,20 @@ class AsyncController implements ControllerProviderInterface
     public function checkShorturlAction(Application $app, Request $request)
     {
         $enabledExtentions = $app['extensions']->getEnabled();
-        $config = $enabledExtentions['shorturl']->config;
+        $config = $enabledExtentions['Shorturl']->config;
         $shorturl = $request->query->get('shorturl');
         $recordId = $request->query->get('recordId');
 
         $response = new \stdClass();
         $response->status = 'ok';
-        $url = $app['paths']['hosturl'].$request->getBaseUrl().'/'.($config['prefix'] ? $config['prefix'].'/' : '').$shorturl;
+
+        if($config['host'] == "*") {
+            $host = $app['paths']['hosturl'] . $request->getBasePath();
+        } else {
+            $host = "http://" . $config['host'];
+        }
+
+        $url = $host . '/'.($config['prefix'] ? $config['prefix'].'/' : '').$shorturl;
         $response->msg = 'This record will be accessible via <a href="'.$url.'" target="_blank">'.$url.'</a>.';
 
         // Check length & chars

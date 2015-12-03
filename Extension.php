@@ -1,6 +1,6 @@
 <?php
 
-namespace Bolt\Extension\Animal\Shorturl;
+namespace Bolt\Extension\rootLogin\Shorturl;
 
 use Bolt\Application;
 use Bolt\BaseExtension;
@@ -9,45 +9,36 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Extension extends BaseExtension
 {
+    const NAME = 'Shorturl';
+
+    const CONTAINER = 'extensions.Shorturl';
+
+    /**
+     * Constructor adds an additional Twig path if we are in the Backend.
+     *
+     * @param Application $app
+     */
+    public function __construct(Application $app)
+    {
+        parent::__construct($app);
+
+        $this->app['config']->getFields()->addField(new Field\ShorturlField());
+    }
+
     public function initialize()
     {
-        $config = $this->config;
+        $this->app['twig.loader.filesystem']->prependPath(__DIR__."/twig");
+
+        $end = $this->app['config']->getWhichEnd();
 
         $this->app->mount($this->app['config']->get('general/branding/path').'/async/shorturl', new Controller\AsyncController($this->app, $this->config));
 
-        $this->app['config']->getFields()->addField(new Field\ShorturlField());
-        if ($this->app['config']->getWhichEnd() == 'backend') {
-            $this->app['htmlsnippets'] = true;
-            $this->app['twig.loader.filesystem']->prependPath(__DIR__.'/assets');
-
+        if ($end =='backend') {
+            $this->addTwig();
             $this->addCss('assets/css/field_shorturl.css');
             $this->addJavascript('assets/js/field_shorturl.js', true);
-        }
-
-        if ($this->app['config']->getWhichEnd() == 'frontend') {
-            $this->app->before(function (Request $request) use ($config, $app) {
-                $requestedPath = trim($request->getPathInfo(), '/');
-
-                // Abort, if not a shorturl
-                if (!preg_match('/'.($config['prefix'] ? $config['prefix'].'\/' : '').'[a-zA-Z0-9\-_.]{2,'.$config['maxlength'].'}$/', $requestedPath)) {
-                    return;
-                }
-
-                // Get all fields of type shorturl
-                $contentTypes = $this->app['config']->get('contenttypes');
-                foreach ($contentTypes as $name => $contentType) {
-                    foreach ($contentType['fields'] as $key => $field) {
-                        if ($field['type'] === 'shorturl') {
-                            $contentTypeContent = $this->app['storage']->getContent($name, array());
-                            foreach ($contentTypeContent as $content) {
-                                if (!empty($content[$key]) && $requestedPath === ($config['prefix'] ? $config['prefix'].'/' : '').$content[$key]) {
-                                    return $this->app->redirect($request->getBaseUrl().$content->link(), 302);
-                                }
-                            }
-                        }
-                    }
-                }
-            }, BoltApplication::EARLY_EVENT);
+        } elseif($end == 'frontend') {
+            new Controller\ShorturlController($this->app);
         }
     }
 
@@ -62,11 +53,44 @@ class Extension extends BaseExtension
             'maxlength' => 10,
             'prefix' => 's',
             'checkunique' => true,
+            'host' => '*'
+        );
+    }
+
+    /**
+     * Add the Twig functions.
+     */
+    private function addTwig()
+    {
+        $app = $this->app;
+
+        // Safe
+        $this->app->share(
+            $this->app->extend(
+                'twig',
+                function (\Twig_Environment $twig) use ($app) {
+                    $twig->addExtension(new Twig\ShorturlExtension($app));
+
+                    return $twig;
+                }
+            )
+        );
+
+        // Normal
+        $this->app->share(
+            $this->app->extend(
+                'safe_twig',
+                function (\Twig_Environment $twig) use ($app) {
+                    $twig->addExtension(new Twig\ShorturlExtension($app));
+
+                    return $twig;
+                }
+            )
         );
     }
 
     public function getName()
     {
-        return 'shorturl';
+        return Extension::NAME;
     }
 }

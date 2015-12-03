@@ -1,5 +1,5 @@
 {
-	"name": "animal/shorturl",
+	"name": "rootlogin/shorturl",
 	"description": "Provides a new 'shorturl' fieldtype for contenttypes and redirects accordingly.",
 	"type": "bolt-extension",
 	"require": {
@@ -9,16 +9,24 @@
 		"SEO",
 		"Redirect"
 	],
-	"authors": [{
-		"name": "Animal Design OG",
-		"email": "studio@animal.at"
-	}],
+	"authors": [
+		{
+			"name": "Animal Design OG",
+			"email": "studio@animal.at"
+		},
+		{
+			"name": "rootLogin",
+			"email": "hello@rootlogin.ch"
+		}],
 	"autoload": {
 		"files": [
 			"init.php"
 		],
 		"psr-4": {
-			"Bolt\\Extension\\Animal\\Shorturl\\": ["", "src/"]
+			"Bolt\\Extension\\rootLogin\\Shorturl\\": ["", "src/"]
 		}
+	},
+	"extra": {
+		"bolt-assets": "assets"
 	}
 }

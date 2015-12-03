@@ -1,5 +1,7 @@
 <?php
 
-use Bolt\Extension\Animal\Shorturl\Extension;
+use Bolt\Extension\rootLogin\Shorturl\Extension;
 
-$app['extensions']->register(new Extension($app));
+if (isset($app)) {
+    $app['extensions']->register(new Extension($app));
+}

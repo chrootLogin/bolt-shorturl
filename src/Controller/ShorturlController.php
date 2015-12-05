@@ -51,7 +51,7 @@ class ShorturlController {
         $storage = $app['storage'];
         $res = $storage->searchAllContentTypes(['shorturl' => $shorturl]);
 
-        if(count($res) == 1) {
+        if(count($res) > 0) {
             /** @var \Bolt\Content $content */
             $content = $res[0];
             $url = $content->link();

@@ -53,7 +53,8 @@ class Extension extends BaseExtension
             'maxlength' => 10,
             'prefix' => 's',
             'checkunique' => true,
-            'host' => '*'
+            'host' => '*',
+            'destination' => 'link'
         );
     }
 

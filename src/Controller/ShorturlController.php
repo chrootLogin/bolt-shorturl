@@ -54,7 +54,12 @@ class ShorturlController {
         if(count($res) > 0) {
             /** @var \Bolt\Content $content */
             $content = $res[0];
-            $url = $content->link();
+
+            if($this->config['destination'] == 'link') {
+                $url = $content->link();
+            } else {
+                $url = $content->get($this->config['destination']);
+            }
 
             if($url != null) {
                 return new RedirectResponse($url);

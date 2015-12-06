@@ -2,3 +2,4 @@ maxlength: 10
 prefix: s
 checkunique: true
 host: '*'
+destination: 'link'
